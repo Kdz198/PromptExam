@@ -25,6 +25,12 @@ public class QuestionController {
         return questionService.save(question);
     }
 
+    @PutMapping
+    public Question updateQuestion( @RequestBody Question question) {
+
+        return questionService.save(question);
+    }
+
     @GetMapping()
     public List<Question> getQuestionsByLessonIdAndGradeId( @RequestParam int gradeId, @RequestParam int lessonId)
     {
