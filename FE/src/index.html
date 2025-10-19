@@ -1,0 +1,2265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trợ lý tạo đề kiểm tra - AG AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="mathjax-script" async></script>
+    <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --accent-color: #ea4335;
+            --warning-color: #fbbc05;
+            --light-bg: #ffffff;
+            --light-surface: #f8f9fa;
+            --light-surface-light: #f0f2f5;
+            --light-text: #202124;
+            --light-text-secondary: #5f6368;
+            --light-border: #dadce0;
+            --dark-bg: #0f1419;
+            --dark-surface: #1a1f2e;
+            --dark-surface-light: #252d3d;
+            --dark-text: #e8eaed;
+            --dark-text-secondary: #9aa0a6;
+            --dark-border: #3c4452;
+        }
+
+        * {
+            color-scheme: light;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--light-text);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 2rem 0;
+        }
+
+        .header h1 {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            border: 1px solid var(--light-border);
+            background-color: var(--light-surface);
+            color: var(--light-text);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 12px 25px;
+            font-weight: 600;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3367d6;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--secondary-color);
+            border: none;
+            padding: 12px 25px;
+            font-weight: 600;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #2d8e47;
+            color: white;
+        }
+
+        .btn-outline-secondary, .btn-outline-danger, .btn-outline-primary, .btn-outline-info, .btn-outline-light {
+            border-radius: 8px;
+            border-color: var(--light-border);
+            color: var(--light-text);
+        }
+
+        .btn-outline-secondary:hover, .btn-outline-danger:hover, .btn-outline-primary:hover, .btn-outline-info:hover {
+            background-color: var(--light-surface-light);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline-light {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .btn-outline-light:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+
+        .exam-result {
+            background-color: var(--light-surface);
+            border-left: 4px solid var(--primary-color);
+            padding: 30px;
+            border: 1px solid var(--light-border);
+            border-radius: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner-border, .loading-spinner {
+            display: none;
+        }
+
+        .btn.is-loading .spinner-border {
+            display: inline-block;
+        }
+
+        .btn.is-loading .loading-spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--light-text);
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 10px 15px;
+            background-color: var(--light-bg);
+            border: 1px solid var(--light-border);
+            color: var(--light-text);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: var(--light-bg);
+            border-color: var(--primary-color);
+            color: var(--light-text);
+            box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: var(--light-text-secondary);
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: 1px solid var(--light-border);
+        }
+
+        .alert-danger {
+            background-color: rgba(234, 67, 53, 0.1);
+            border-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        .alert-success {
+            background-color: rgba(52, 168, 83, 0.1);
+            border-color: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .alert-warning {
+            background-color: rgba(251, 188, 5, 0.1);
+            border-color: #ffe0b2;
+            color: #f57f17;
+        }
+
+        .tab-content pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            background-color: var(--light-surface-light);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--light-border);
+            color: var(--light-text);
+        }
+
+        #objectivesCheckboxContainer {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid var(--light-border);
+            border-radius: 8px;
+            padding: 0.5rem;
+            background-color: var(--light-surface-light);
+        }
+
+        .nav-tabs {
+            border-bottom: 1px solid var(--light-border);
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--light-text-secondary);
+            border: none;
+        }
+
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background-color: transparent;
+        }
+
+        .rendered-table table, #previewMatrixContainer table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .rendered-table th, .rendered-table td, #previewMatrixContainer th, #previewMatrixContainer td {
+            border: 1px solid var(--light-border);
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+            color: var(--light-text);
+        }
+
+        .rendered-table th, #previewMatrixContainer th {
+            background-color: var(--light-surface-light);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .rendered-table .text-left, #previewMatrixContainer .text-left {
+            text-align: left;
+        }
+
+        #apiKeyMessage {
+            min-height: 50px;
+        }
+
+        .explanation-section {
+            background-color: rgba(52, 168, 83, 0.1);
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            color: var(--light-text);
+        }
+
+        .objective-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--light-border);
+            color: var(--light-text);
+        }
+
+        .objective-item:last-child {
+            border-bottom: none;
+        }
+
+        .objective-item .form-check-label {
+            cursor: pointer;
+        }
+
+        #questionBankDisplay, #matrixBankDisplay {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid var(--light-border);
+            border-radius: 8px;
+            padding: 1rem;
+            background-color: var(--light-surface-light);
+        }
+
+        .bank-question-item, .bank-matrix-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-border);
+            margin-bottom: 0.5rem;
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            color: var(--light-text);
+        }
+
+        .bank-question-item:last-child, .bank-matrix-item:last-child {
+            border-bottom: none;
+        }
+
+        .bank-question-item .form-check-label, .bank-matrix-item .form-check-label {
+            cursor: pointer;
+        }
+
+        .preview-panel {
+            position: sticky;
+            top: 1.5rem;
+        }
+
+        .preview-placeholder {
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 2px dashed var(--light-border);
+            border-radius: 12px;
+            color: var(--light-text-secondary);
+        }
+
+        .accordion-button {
+            background-color: var(--light-surface);
+            color: var(--light-text);
+            border: 1px solid var(--light-border);
+        }
+
+        .accordion-button:not(.collapsed) {
+            color: white;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .accordion-button:not(.collapsed)::after {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        }
+
+        #tracNghiemOptions .input-group {
+            margin-bottom: 0.5rem;
+        }
+
+        #tracNghiemOptions .form-check-input {
+            margin-top: 0.5rem;
+        }
+
+        .modal-content {
+            background-color: var(--light-surface);
+            border: 1px solid var(--light-border);
+            color: var(--light-text);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--light-border);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--light-border);
+        }
+
+        .btn-close {
+            filter: none;
+        }
+
+        .form-check-input {
+            background-color: var(--light-bg);
+            border: 1px solid var(--light-border);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-check-label {
+            color: var(--light-text);
+        }
+
+        .text-muted {
+            color: var(--light-text-secondary) !important;
+        }
+
+        .text-danger {
+            color: var(--accent-color) !important;
+        }
+
+        .bg-light {
+            background-color: var(--light-surface-light) !important;
+        }
+
+        .dropdown-menu {
+            background-color: var(--light-surface);
+            border: 1px solid var(--light-border);
+        }
+
+        .dropdown-item {
+            color: var(--light-text);
+        }
+
+        .dropdown-item:hover, .dropdown-item:focus {
+            background-color: var(--light-surface-light);
+            color: var(--primary-color);
+        }
+
+        footer {
+            background-color: var(--light-surface) !important;
+            border-top: 1px solid var(--light-border);
+        }
+
+        .input-group-text {
+            background-color: var(--light-surface-light);
+            border: 1px solid var(--light-border);
+            color: var(--light-text);
+        }
+
+        .btn-group {
+            gap: 0.5rem;
+        }
+
+        h3, h5 {
+            color: var(--light-text);
+        }
+
+        .lead {
+            color: var(--light-text-secondary);
+        }
+    </style>
+    <script type="importmap">
+        {
+          "imports": {
+            "@google/genai": "https://esm.sh/@google/genai@^1.13.0"
+          }
+        }
+    </script>
+</head>
+<body>
+<div class="header py-4 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="bi bi-journal-bookmark-fill"></i> Trợ lý tạo đề thi AI</h1>
+                <p class="lead mb-0">Tạo đề kiểm tra, đáp án, ma trận và bảng đặc tả theo chương trình giáo dục.</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#apiKeyModal">
+                    <i class="bi bi-key-fill"></i> Cấu hình API Key
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div id="messageBox" class="mb-3"></div>
+
+    <div class="row g-4">
+        <!-- Left Column: Controls -->
+        <div class="col-lg-5">
+            <!-- Main Controls -->
+            <div class="card p-4 mb-3">
+                <h3 class="mb-4"><i class="bi bi-pencil-square"></i> 1. Xây dựng cấu trúc</h3>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="subjectSelect" class="form-label">Môn học</label>
+                        <div class="input-group">
+                            <select class="form-select" id="subjectSelect">
+                                <option selected disabled>-- Chọn môn học --</option>
+                            </select>
+                            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="gradeSelect" class="form-label">Lớp học</label>
+                        <select class="form-select" id="gradeSelect">
+                            <option selected disabled>-- Chọn lớp học --</option>
+                            <option value="1">Lớp 1</option>
+                            <option value="2">Lớp 2</option>
+                            <option value="3">Lớp 3</option>
+                            <option value="4">Lớp 4</option>
+                            <option value="5">Lớp 5</option>
+                            <option value="6">Lớp 6</option>
+                            <option value="7">Lớp 7</option>
+                            <option value="8">Lớp 8</option>
+                            <option value="9">Lớp 9</option>
+                            <option value="10">Lớp 10</option>
+                            <option value="11">Lớp 11</option>
+                            <option value="12">Lớp 12</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="lessonSelect" class="form-label">Bài học</label>
+                        <div class="input-group">
+                            <button class="btn btn-outline-info" type="button" id="viewLessonBtn" data-bs-toggle="modal" data-bs-target="#viewLessonModal" disabled>
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <select class="form-select" id="lessonSelect" disabled>
+                                <option selected disabled>-- Chọn bài học --</option>
+                            </select>
+                            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#addLessonModal">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-12" id="objectivesContainer" style="display: none;">
+                        <div class="p-3 bg-light border rounded-2">
+                            <label for="newObjectiveInput" class="form-label">Thêm yêu cầu cần đạt mới</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" id="newObjectiveInput" placeholder="Nhập một yêu cầu cần đạt...">
+                                <button class="btn btn-outline-primary" type="button" id="addObjectiveBtn">Thêm</button>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <p class="text-muted small mb-0">Chọn các yêu cầu để thêm vào cấu trúc:</p>
+                                <button class="btn btn-sm btn-outline-success" id="suggestObjectivesBtn">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    ✨ Gợi ý Yêu cầu
+                                </button>
+                            </div>
+                            <div id="objectivesCheckboxContainer"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="d-grid gap-2 mt-4">
+                    <button id="addBtn" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> Thêm vào cấu trúc
+                    </button>
+                </div> -->
+            </div>
+
+            <!-- Accordion for Question Bank and Matrix Bank -->
+            <div class="accordion" id="optionsAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFour">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                            <i class="bi bi-bank2 me-2"></i> Ngân hàng câu hỏi
+                        </button>
+                    </h2>
+                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#optionsAccordion">
+                        <div class="accordion-body">
+                            <p class="text-muted small">Duyệt, chọn và quản lý các câu hỏi đã được phân loại.</p>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-12">
+                                    <label for="bankSubjectSelect" class="form-label">Môn học</label>
+                                    <select class="form-select form-select-sm" id="bankSubjectSelect">
+                                        <option selected disabled>-- Chọn môn học --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="bankGradeSelect" class="form-label">Lớp</label>
+                                    <select class="form-select form-select-sm" id="bankGradeSelect" disabled>
+                                        <option selected>-- Chọn lớp --</option>
+                                        <option value="1">Lớp 1</option>
+                                        <option value="2">Lớp 2</option>
+                                        <option value="3">Lớp 3</option>
+                                        <option value="4">Lớp 4</option>
+                                        <option value="5">Lớp 5</option>
+                                        <option value="6">Lớp 6</option>
+                                        <option value="7">Lớp 7</option>
+                                        <option value="8">Lớp 8</option>
+                                        <option value="9">Lớp 9</option>
+                                        <option value="10">Lớp 10</option>
+                                        <option value="11">Lớp 11</option>
+                                        <option value="12">Lớp 12</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="bankLessonIdSelect" class="form-label">Bài học (ID)</label>
+                                    <select class="form-select form-select-sm" id="bankLessonIdSelect" disabled>
+                                        <option selected>-- Chọn bài học --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="bankTypeSelect" class="form-label">Loại câu hỏi</label>
+                                    <select class="form-select form-select-sm" id="bankTypeSelect">
+                                        <option value="all" selected>Tất cả</option>
+                                        <option value="TracNghiem">Trắc nghiệm</option>
+                                        <option value="TuLuan">Tự luận</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="bankDifficultySelect" class="form-label">Mức độ</label>
+                                    <select class="form-select form-select-sm" id="bankDifficultySelect">
+                                        <option value="all" selected>Tất cả</option>
+                                        <option value="NhanBiet">Nhận biết</option>
+                                        <option value="ThongHieu">Thông hiểu</option>
+                                        <option value="VanDung">Vận dụng</option>
+                                        <option value="VanDungCao">Vận dụng cao</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+                                    <i class="bi bi-plus-lg"></i> Tạo câu hỏi mới
+                                </button>
+                            </div>
+                            <div id="questionBankDisplay" class="bg-light"></div>
+                            <!-- Removed export functionality section -->
+                            <div id="questionBankActions" class="mt-3 p-3 bg-light border rounded-2" style="display: none;">
+                                <span>Đã chọn: <strong id="selectedQuestionCount">0</strong> câu hỏi</span>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="exportSelectedBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-box-arrow-down"></i> Xuất
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="exportSelectedBtn">
+                                        <li><a class="dropdown-item export-selected-action" href="#" data-format="docx"><i class="bi bi-file-earmark-word me-2"></i>.docx</a></li>
+                                        <li><a class="dropdown-item export-selected-action" href="#" data-format="tex"><i class="bi bi-filetype-tex me-2"></i>.tex</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Updated Matrix Bank section to filter by subject and grade, added create matrix button -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFive">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                            <i class="bi bi-table me-2"></i> Ngân hàng ma trận
+                        </button>
+                    </h2>
+                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#optionsAccordion">
+                        <div class="accordion-body">
+                            <p class="text-muted small">Duyệt và xem chi tiết các ma trận đề thi đã lưu.</p>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-12">
+                                    <label for="matrixBankSubjectSelect" class="form-label">Môn học</label>
+                                    <select class="form-select form-select-sm" id="matrixBankSubjectSelect">
+                                        <option selected disabled>-- Chọn môn học --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="matrixBankGradeSelect" class="form-label">Lớp</label>
+                                    <select class="form-select form-select-sm" id="matrixBankGradeSelect" disabled>
+                                        <option selected>-- Chọn lớp --</option>
+                                        <option value="1">Lớp 1</option>
+                                        <option value="2">Lớp 2</option>
+                                        <option value="3">Lớp 3</option>
+                                        <option value="4">Lớp 4</option>
+                                        <option value="5">Lớp 5</option>
+                                        <option value="6">Lớp 6</option>
+                                        <option value="7">Lớp 7</option>
+                                        <option value="8">Lớp 8</option>
+                                        <option value="9">Lớp 9</option>
+                                        <option value="10">Lớp 10</option>
+                                        <option value="11">Lớp 11</option>
+                                        <option value="12">Lớp 12</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#createMatrixModal">
+                                    <i class="bi bi-plus-lg"></i> Tạo ma trận mới
+                                </button>
+                            </div>
+                            <div id="matrixBankDisplay" class="bg-light"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate Button Card -->
+            <div class="card p-3 mt-3">
+                <div id="authMessage" class="alert alert-warning text-center" style="display: none;">
+                    <strong><i class="bi bi-exclamation-triangle-fill"></i> Chú ý:</strong> Vui lòng truy cập từ Roboki.vn để kích hoạt.
+                </div>
+                <div id="demoControls" class="mb-3" style="display: none;">
+                    <div id="demoLoginContainer">
+                        <div class="input-group">
+                            <input type="text" id="demoUserIdInput" class="form-control form-control-sm" placeholder="Nhập userId để giả lập...">
+                            <button class="btn btn-sm btn-outline-secondary" id="simulateLoginBtn">Đăng nhập Demo</button>
+                        </div>
+                    </div>
+                    <div id="demoLogoutContainer" style="display: none;">
+                        <p class="mb-1 small">Đã đăng nhập demo với ID: <strong id="loggedInUserId"></strong></p>
+                        <button class="btn btn-sm btn-outline-danger w-100" id="simulateLogoutBtn">Đăng xuất Demo</button>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <button id="generateFinalExamBtn" class="btn btn-success btn-lg">
+                        <span id="generateText">Tạo đề thi, Ma trận & Đặc tả</span>
+                        <span id="generateSpinner" class="loading-spinner ms-2">
+                            <i class="bi bi-arrow-repeat text-white"></i>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Preview -->
+        <div class="col-lg-7">
+            <div class="card p-4 preview-panel">
+                <h3 class="mb-4"><i class="bi bi-grid-3x3-gap-fill"></i> Xem trước</h3>
+
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="bi bi-list-check"></i> Câu hỏi đã chọn</h5>
+                    <!-- Updated selected questions preview to show only cards with key info -->
+                    <div id="selectedQuestionsPreview" class="preview-placeholder">
+                        <p class="text-muted">Chọn câu hỏi từ ngân hàng để xem trước</p>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="mb-4">
+                    <h5 class="mb-3"><i class="bi bi-table"></i> Ma trận đã chọn</h5>
+                    <!-- Updated matrix preview display -->
+                    <div id="selectedMatrixPreview" class="preview-placeholder">
+                        <p class="text-muted">Chọn ma trận từ ngân hàng để xem trước</p>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="d-grid gap-2">
+                    <button id="generateWithAIBtn" class="btn btn-success btn-lg" disabled>
+                        <span id="generateWithAIText">Gửi để tạo đề thi</span>
+                        <span id="generateWithAISpinner" class="loading-spinner ms-2">
+                            <i class="bi bi-arrow-repeat text-white"></i>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result section -->
+    <div class="row mt-5" id="resultSection" style="display: none;">
+        <div class="col-lg-12">
+            <div class="card p-4 exam-result">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3><i class="bi bi-clipboard2-data-fill"></i> Kết quả</h3>
+                    <div class="btn-toolbar" role="toolbar">
+                        <div class="btn-group me-2" role="group">
+                            <button id="updateQuestionBankBtn" class="btn btn-sm btn-outline-info">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <i class="bi bi-bank"></i> Lưu vào Ngân hàng
+                            </button>
+                        </div>
+                        <div class="btn-group me-2" role="group">
+                            <button id="copyBtn" class="btn btn-sm btn-outline-secondary"><i class="bi bi-clipboard"></i> Sao chép</button>
+                        </div>
+                        <div class="btn-group me-2" role="group">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="downloadDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-download"></i> Tải về
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="downloadDropdownBtn">
+                                <li><a class="dropdown-item" href="#" id="exportDocxBtn"><i class="bi bi-file-earmark-word me-2"></i>.docx</a></li>
+                                <li><a class="dropdown-item" href="#" id="exportTexBtn"><i class="bi bi-filetype-tex me-2"></i>.tex</a></li>
+                            </ul>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button id="newExamBtn" class="btn btn-sm btn-outline-danger"><i class="bi bi-plus-circle"></i> Tạo đề mới</button>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs" id="resultTabs" role="tablist">
+                    <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#exam-tab-pane">Đề thi & Đáp án</button></li>
+                    <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#matrix-tab-pane">Ma trận đề thi</button></li>
+                    <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#spec-tab-pane">Bản đặc tả</button></li>
+                </ul>
+
+                <div class="tab-content pt-3" id="resultTabsContent">
+                    <div class="tab-pane fade show active" id="exam-tab-pane" role="tabpanel">
+                        <div id="examAndAnswerContent"></div>
+                        <div class="mt-4">
+                            <button class="btn btn-outline-success" id="generateExplanationsBtn">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                ✨ Tạo giải thích chi tiết
+                            </button>
+                        </div>
+                        <div id="explanationsContainer" class="mt-3" style="display:none;"></div>
+                    </div>
+                    <div class="tab-pane fade" id="matrix-tab-pane" role="tabpanel"><div id="examMatrixContent"></div></div>
+                    <div class="tab-pane fade" id="spec-tab-pane" role="tabpanel"><div id="examSpecContent"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- API Key Modal -->
+<div class="modal fade" id="apiKeyModal" tabindex="-1" aria-labelledby="apiKeyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title" id="apiKeyModalLabel"><i class="bi bi-key"></i> Cài đặt API Key</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="apiKeyInput" class="form-label">Google Gemini API Key</label>
+                    <input type="password" class="form-control" id="apiKeyInput" placeholder="Nhập API Key của bạn">
+                    <div class="form-text">API Key được lưu cục bộ. <a href="https://ai.google.dev/" target="_blank">Lấy API Key tại Google AI Studio</a></div>
+                </div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch" id="rememberApiKey" checked><label class="form-check-label" for="rememberApiKey">Ghi nhớ API Key</label></div>
+                <div id="apiKeyMessage" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveApiKeyBtn">
+                    <span id="saveApiKeyText">Lưu và Kiểm tra</span>
+                    <span id="apiKeySpinner" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Subject Modal -->
+<div class="modal fade" id="addSubjectModal" tabindex="-1" aria-labelledby="addSubjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSubjectModalLabel"><i class="bi bi-plus-lg"></i> Thêm Môn Học</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="subjectCodeInput" class="form-label">Mã môn học</label>
+                    <input type="text" class="form-control" id="subjectCodeInput" placeholder="Nhập mã môn học (ví dụ: TOAN)">
+                </div>
+                <div class="mb-3">
+                    <label for="subjectNameInput" class="form-label">Tên môn học</label>
+                    <input type="text" class="form-control" id="subjectNameInput" placeholder="Nhập tên môn học (ví dụ: Toán Học)">
+                </div>
+                <div id="addSubjectMessage" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveSubjectBtn">
+                    <span id="saveSubjectText">Lưu</span>
+                    <span id="saveSubjectSpinner" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Lesson Modal -->
+<div class="modal fade" id="addLessonModal" tabindex="-1" aria-labelledby="addLessonModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addLessonModalLabel"><i class="bi bi-plus-lg"></i> Thêm Bài Học</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="lessonSubjectSelect" class="form-label">Môn học</label>
+                    <select class="form-select" id="lessonSubjectSelect">
+                        <option selected disabled>-- Chọn môn học --</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="lessonGradeSelect" class="form-label">Lớp học</label>
+                    <select class="form-select" id="lessonGradeSelect">
+                        <option selected disabled>-- Chọn lớp học --</option>
+                        <option value="1">Lớp 1</option>
+                        <option value="2">Lớp 2</option>
+                        <option value="3">Lớp 3</option>
+                        <option value="4">Lớp 4</option>
+                        <option value="5">Lớp 5</option>
+                        <option value="6">Lớp 6</option>
+                        <option value="7">Lớp 7</option>
+                        <option value="8">Lớp 8</option>
+                        <option value="9">Lớp 9</option>
+                        <option value="10">Lớp 10</option>
+                        <option value="11">Lớp 11</option>
+                        <option value="12">Lớp 12</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="lessonNameInput" class="form-label">Tên bài học</label>
+                    <input type="text" class="form-control" id="lessonNameInput" placeholder="Nhập tên bài học (ví dụ: Hàm số Bậc hai)">
+                </div>
+                <div class="mb-3">
+                    <label for="learningObjectivesInput" class="form-label">Yêu cầu cần đạt</label>
+                    <textarea class="form-control" id="learningObjectivesInput" rows="3" placeholder="Nhập yêu cầu cần đạt (định dạng tùy ý, ví dụ: [{\"key\":\"MATH_OBJ\",\"obj\":\"Hiểu và áp dụng kiến thức cơ bản toán học.\"}])"></textarea>
+                </div>
+                <div id="addLessonMessage" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveLessonBtn">
+                    <span id="saveLessonText">Lưu</span>
+                    <span id="saveLessonSpinner" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Lesson Modal -->
+<div class="modal fade" id="viewLessonModal" tabindex="-1" aria-labelledby="viewLessonModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewLessonModalLabel"><i class="bi bi-eye"></i> Thông tin Bài Học</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Môn học</label>
+                    <input type="text" class="form-control" id="viewLessonSubject" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Lớp học</label>
+                    <input type="text" class="form-control" id="viewLessonGrade" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tên bài học</label>
+                    <input type="text" class="form-control" id="viewLessonName" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Yêu cầu cần đạt</label>
+                    <div id="viewLessonObjectives" class="p-3 bg-light border rounded-2" style="max-height: 200px; overflow-y: auto;"></div>
+                </div>
+                <div id="viewLessonMessage" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Question Modal -->
+<div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addQuestionModalLabel"><i class="bi bi-plus-lg"></i> Tạo Câu Hỏi Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="questionLessonIdSelect" class="form-label">Bài học (ID)</label>
+                    <select class="form-select" id="questionLessonIdSelect">
+                        <option selected disabled>-- Chọn bài học --</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="questionTextInput" class="form-label">Nội dung câu hỏi (hỗ trợ LaTeX)</label>
+                    <textarea class="form-control" id="questionTextInput" rows="4" placeholder="Nhập nội dung câu hỏi, ví dụ: Giải bất phương trình \$$ 2x - 3 > 5 \$$"></textarea>
+                </div>
+                <div class="mb-3" id="tracNghiemOptions" style="display: none;">
+                    <label class="form-label">Lựa chọn (chọn 1 đáp án đúng)</label>
+                    <div class="input-group">
+                        <div class="input-group-text">
+                            <input class="form-check-input" type="radio" name="answerKey" value="a">
+                        </div>
+                        <input type="text" class="form-control" id="optionA" placeholder="Đáp án A">
+                    </div>
+                    <div class="input-group">
+                        <div class="input-group-text">
+                            <input class="form-check-input" type="radio" name="answerKey" value="b">
+                        </div>
+                        <input type="text" class="form-control" id="optionB" placeholder="Đáp án B">
+                    </div>
+                    <div class="input-group">
+                        <div class="input-group-text">
+                            <input class="form-check-input" type="radio" name="answerKey" value="c">
+                        </div>
+                        <input type="text" class="form-control" id="optionC" placeholder="Đáp án C">
+                    </div>
+                    <div class="input-group">
+                        <div class="input-group-text">
+                            <input class="form-check-input" type="radio" name="answerKey" value="d">
+                        </div>
+                        <input type="text" class="form-control" id="optionD" placeholder="Đáp án D">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="questionTypeSelect" class="form-label">Loại câu hỏi</label>
+                    <select class="form-select" id="questionTypeSelect">
+                        <option value="TracNghiem">Trắc nghiệm</option>
+                        <option value="TuLuan">Tự luận</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="questionDifficultySelect" class="form-label">Mức độ</label>
+                    <select class="form-select" id="questionDifficultySelect">
+                        <option value="NhanBiet">Nhận biết</option>
+                        <option value="ThongHieu">Thông hiểu</option>
+                        <option value="VanDung">Vận dụng</option>
+                        <option value="VanDungCao">Vận dụng cao</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="defaultPointInput" class="form-label">Điểm mặc định</label>
+                    <input type="number" class="form-control" id="defaultPointInput" min="0" step="0.1" value="1.0">
+                </div>
+                <div id="addQuestionMessage" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveQuestionBtn">
+                    <span id="saveQuestionText">Lưu</span>
+                    <span id="saveQuestionSpinner" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Create Matrix Modal -->
+<div class="modal fade" id="createMatrixModal" tabindex="-1" aria-labelledby="createMatrixModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createMatrixModalLabel"><i class="bi bi-plus-lg"></i> Tạo Ma Trận Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="matrixNameInput" class="form-label">Tên ma trận</label>
+                    <input type="text" class="form-control" id="matrixNameInput" placeholder="Ví dụ: Ma trận chuẩn 45 phút">
+                </div>
+                <div class="mb-3">
+                    <label for="matrixDescriptionInput" class="form-label">Mô tả</label>
+                    <textarea class="form-control" id="matrixDescriptionInput" rows="2" placeholder="Mô tả chi tiết về ma trận"></textarea>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="matrixSubjectIdInput" class="form-label">Môn học</label>
+                        <select class="form-select" id="matrixSubjectIdInput">
+                            <option selected disabled>-- Chọn môn học --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="matrixGradeInput" class="form-label">Lớp học</label>
+                        <select class="form-select" id="matrixGradeInput">
+                            <option selected disabled>-- Chọn lớp --</option>
+                            <option value="1">Lớp 1</option>
+                            <option value="2">Lớp 2</option>
+                            <option value="3">Lớp 3</option>
+                            <option value="4">Lớp 4</option>
+                            <option value="5">Lớp 5</option>
+                            <option value="6">Lớp 6</option>
+                            <option value="7">Lớp 7</option>
+                            <option value="8">Lớp 8</option>
+                            <option value="9">Lớp 9</option>
+                            <option value="10">Lớp 10</option>
+                            <option value="11">Lớp 11</option>
+                            <option value="12">Lớp 12</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Cấu hình mức độ và số câu hỏi</label>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th>Mức độ</th>
+                                <th>Số câu hỏi</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Nhận biết</td>
+                                <td><input type="number" class="form-control form-control-sm difficulty-input" data-difficulty="NhanBiet" min="0" value="0"></td>
+                            </tr>
+                            <tr>
+                                <td>Thông hiểu</td>
+                                <td><input type="number" class="form-control form-control-sm difficulty-input" data-difficulty="ThongHieu" min="0" value="0"></td>
+                            </tr>
+                            <tr>
+                                <td>Vận dụng</td>
+                                <td><input type="number" class="form-control form-control-sm difficulty-input" data-difficulty="VanDung" min="0" value="0"></td>
+                            </tr>
+                            <tr>
+                                <td>Vận dụng cao</td>
+                                <td><input type="number" class="form-control form-control-sm difficulty-input" data-difficulty="VanDungCao" min="0" value="0"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-muted small">Tổng số câu hỏi: <strong id="totalQuestionsDisplay">0</strong></p>
+                </div>
+                <div id="createMatrixMessage" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveMatrixBtn" onclick="console.log('[v0] Button clicked!'); createMatrix();">
+                    <span id="saveMatrixText">Lưu ma trận</span>
+                    <span id="saveMatrixSpinner" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Matrix Details Modal -->
+<div class="modal fade" id="viewMatrixModal" tabindex="-1" aria-labelledby="viewMatrixModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewMatrixModalLabel"><i class="bi bi-table"></i> Chi tiết Ma trận</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tên ma trận</label>
+                    <input type="text" class="form-control" id="viewMatrixName" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mô tả</label>
+                    <textarea class="form-control" id="viewMatrixDescription" readonly rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tổng số câu hỏi</label>
+                    <input type="text" class="form-control" id="viewMatrixTotalQuestions" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Cấu hình ma trận</label>
+                    <div id="viewMatrixConfig" class="p-3 bg-light border rounded-2"></div>
+                </div>
+                <div id="viewMatrixMessage" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Question Details -->
+<!-- Added modal to show full question details -->
+<div class="modal fade" id="questionDetailModal" tabindex="-1" aria-labelledby="questionDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="questionDetailModalLabel">Chi tiết câu hỏi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="questionDetailContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-light py-4 mt-5">
+    <div class="container text-center">
+        <p class="text-muted mb-0">Ứng dụng tạo đề kiểm tra AG-AI © 2025 by Phạm Anh Dũng</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let selectedQuestionsData = new Set();
+    let allQuestionsData = {}; // Store all questions by ID for reference
+
+    // Function to show error messages
+    function showError(messageDiv, message) {
+        messageDiv.innerHTML = `
+            <div class="alert alert-danger" role="alert">
+                ${message || 'Đã xảy ra lỗi. Vui lòng thử lại sau.'}
+            </div>`;
+    }
+
+    // Function to fetch subjects from API and populate the subject dropdowns
+    async function loadSubjects() {
+        try {
+            const response = await fetch('http://localhost:8080/api/subject', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch subjects: ${response.statusText}`);
+            }
+            const subjects = await response.json();
+            const subjectSelect = document.getElementById('subjectSelect');
+            const lessonSubjectSelect = document.getElementById('lessonSubjectSelect');
+            const bankSubjectSelect = document.getElementById('bankSubjectSelect');
+            const matrixBankSubjectSelect = document.getElementById('matrixBankSubjectSelect');
+            const matrixSubjectIdInput = document.getElementById('matrixSubjectIdInput');
+
+            subjectSelect.innerHTML = '<option selected disabled>-- Chọn môn học --</option>';
+            lessonSubjectSelect.innerHTML = '<option selected disabled>-- Chọn môn học --</option>';
+            bankSubjectSelect.innerHTML = '<option selected disabled>-- Chọn môn học --</option>';
+            matrixBankSubjectSelect.innerHTML = '<option selected disabled>-- Chọn môn học --</option>';
+            matrixSubjectIdInput.innerHTML = '<option selected disabled>-- Chọn môn học --</option>';
+
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject.code;
+                option.textContent = subject.name;
+                subjectSelect.appendChild(option);
+                const lessonOption = document.createElement('option');
+                lessonOption.value = subject.code;
+                lessonOption.textContent = subject.name;
+                lessonSubjectSelect.appendChild(lessonOption);
+                const bankOption = document.createElement('option');
+                bankOption.value = subject.code;
+                bankOption.textContent = subject.name;
+                bankSubjectSelect.appendChild(bankOption);
+                const matrixOption = document.createElement('option');
+                matrixOption.value = subject.code;
+                matrixOption.textContent = subject.name;
+                matrixBankSubjectSelect.appendChild(matrixOption);
+                const matrixCreateOption = document.createElement('option');
+                matrixCreateOption.value = subject.id;
+                matrixCreateOption.textContent = subject.name;
+                matrixSubjectIdInput.appendChild(matrixCreateOption);
+            });
+        } catch (error) {
+            console.error('Error loading subjects:', error);
+            showError(document.getElementById('messageBox'), `Lỗi khi tải danh sách môn học: ${error.message}`);
+        }
+    }
+
+    // Function to fetch lessons for select elements
+    async function loadLessonsForSelect(subjectCode, grade, selectElement, messageBox, enableSelect = true, includeId = false) {
+        selectElement.innerHTML = '<option selected disabled>-- Chọn bài học --</option>';
+        selectElement.disabled = true;
+
+        if (!subjectCode || !grade) {
+            showError(messageDiv, 'Vui lòng chọn cả môn học và lớp học để tải bài học.');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/lesson', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (!response.ok) throw new Error(`Failed to fetch lessons: ${response.statusText}`);
+            const lessons = await response.json();
+            const filteredLessons = lessons.filter(lesson =>
+                lesson.subject && lesson.subject.code === subjectCode && lesson.grade === parseInt(grade)
+            );
+
+            if (filteredLessons.length === 0) {
+                showError(messageBox, `Không tìm thấy bài học nào cho môn ${subjectCode} lớp ${grade}.`);
+                return;
+            }
+
+            selectElement.disabled = !enableSelect;
+            filteredLessons.forEach(lesson => {
+                const option = document.createElement('option');
+                option.value = includeId ? lesson.id : lesson.name;
+                option.textContent = includeId ? `${lesson.name} (ID: ${lesson.id})` : lesson.name;
+                selectElement.appendChild(option);
+            });
+            messageBox.innerHTML = '';
+        } catch (error) {
+            console.error('Error loading lessons:', error);
+            showError(messageBox, `Lỗi khi tải danh sách bài học: ${error.message}`);
+        }
+    }
+
+    // Function to fetch lessons for question bank and add question modal
+    async function loadBankLessons() {
+        const subjectCode = document.getElementById('bankSubjectSelect').value;
+        const grade = document.getElementById('bankGradeSelect').value;
+        const lessonIdSelect = document.getElementById('bankLessonIdSelect');
+        const questionLessonIdSelect = document.getElementById('questionLessonIdSelect');
+
+        await loadLessonsForSelect(subjectCode, grade, lessonIdSelect, document.getElementById('messageBox'), true, true);
+        await loadLessonsForSelect(subjectCode, grade, questionLessonIdSelect, document.getElementById('messageBox'), true, true);
+    }
+
+    // Function to handle adding a new subject
+    async function addSubject() {
+        const code = document.getElementById('subjectCodeInput').value.trim();
+        const name = document.getElementById('subjectNameInput').value.trim();
+        const messageDiv = document.getElementById('addSubjectMessage');
+        const saveButton = document.getElementById('saveSubjectBtn');
+        const spinner = document.getElementById('saveSubjectSpinner');
+        const saveText = document.getElementById('saveSubjectText');
+
+        if (!code || !name) {
+            showError(messageDiv, 'Vui lòng nhập cả mã và tên môn học.');
+            return;
+        }
+
+        saveButton.disabled = true;
+        spinner.style.display = 'inline-block';
+        saveText.textContent = 'Đang lưu...';
+
+        try {
+            const response = await fetch('http://localhost:8080/api/subject', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ code, name })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to add subject: ${response.statusText}`);
+            }
+
+            messageDiv.innerHTML = `
+                <div class="alert alert-success" role="alert">
+                    Thêm môn học thành công!
+                </div>`;
+            document.getElementById('subjectCodeInput').value = '';
+            document.getElementById('subjectNameInput').value = '';
+            await loadSubjects();
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('addSubjectModal')).hide();
+                messageDiv.innerHTML = '';
+            }, 1500);
+        } catch (error) {
+            showError(messageDiv, `Lỗi khi thêm môn học: ${error.message}`);
+        } finally {
+            saveButton.disabled = false;
+            spinner.style.display = 'none';
+            saveText.textContent = 'Lưu';
+        }
+    }
+
+    // Function to handle adding a new lesson
+    async function addLesson() {
+        const subjectCode = document.getElementById('lessonSubjectSelect').value;
+        const grade = document.getElementById('lessonGradeSelect').value;
+        const name = document.getElementById('lessonNameInput').value.trim();
+        const learningObjectivesJson = document.getElementById('learningObjectivesInput').value.trim();
+        const messageDiv = document.getElementById('addLessonMessage');
+        const saveButton = document.getElementById('saveLessonBtn');
+        const spinner = document.getElementById('saveLessonSpinner');
+        const saveText = document.getElementById('saveLessonText');
+
+        if (!subjectCode || !grade || !name || !learningObjectivesJson) {
+            showError(messageDiv, 'Vui lòng nhập đầy đủ thông tin bài học.');
+            return;
+        }
+
+        saveButton.disabled = true;
+        spinner.style.display = 'inline-block';
+        saveText.textContent = 'Đang lưu...';
+
+        try {
+            const response = await fetch('http://localhost:8080/api/lesson', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    subject: { code: subjectCode },
+                    grade: parseInt(grade),
+                    name,
+                    learningObjectivesJson
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to add lesson: ${response.statusText}`);
+            }
+
+            messageDiv.innerHTML = `
+                <div class="alert alert-success" role="alert">
+                    Thêm bài học thành công!
+                </div>`;
+            document.getElementById('lessonSubjectSelect').value = '';
+            document.getElementById('lessonGradeSelect').value = '';
+            document.getElementById('lessonNameInput').value = '';
+            document.getElementById('learningObjectivesInput').value = '';
+            await loadLessons();
+            await loadBankLessons();
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('addLessonModal')).hide();
+                messageDiv.innerHTML = '';
+            }, 1500);
+        } catch (error) {
+            showError(messageDiv, `Lỗi khi thêm bài học: ${error.message}`);
+        } finally {
+            saveButton.disabled = false;
+            spinner.style.display = 'none';
+            saveText.textContent = 'Lưu';
+        }
+    }
+
+    // Function to view lesson details
+    async function viewLessonDetails() {
+        const subjectCode = document.getElementById('subjectSelect').value;
+        const grade = document.getElementById('gradeSelect').value;
+        const lessonName = document.getElementById('lessonSelect').value;
+        const messageDiv = document.getElementById('viewLessonMessage');
+        const objectivesDiv = document.getElementById('viewLessonObjectives');
+        const subjectInput = document.getElementById('viewLessonSubject');
+        const gradeInput = document.getElementById('viewLessonGrade');
+        const nameInput = document.getElementById('viewLessonName');
+
+        if (!subjectCode || !grade || !lessonName || lessonName === '-- Chọn bài học --') {
+            showError(messageDiv, 'Vui lòng chọn bài học để xem chi tiết.');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/lesson', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch lessons: ${response.statusText}`);
+            }
+            const lessons = await response.json();
+            const lesson = lessons.find(l =>
+                l.subject && l.subject.code === subjectCode &&
+                l.grade === parseInt(grade) &&
+                l.name === lessonName
+            );
+
+            if (!lesson) {
+                showError(messageDiv, 'Không tìm thấy thông tin bài học.');
+                return;
+            }
+
+            subjectInput.value = lesson.subject.name;
+            gradeInput.value = `Lớp ${lesson.grade}`;
+            nameInput.value = lesson.name;
+
+            let objectivesHtml = '';
+            try {
+                const objectives = JSON.parse(lesson.learningObjectivesJson);
+                if (Array.isArray(objectives)) {
+                    objectivesHtml = '<ul>';
+                    objectives.forEach(obj => {
+                        objectivesHtml += `<li>${obj.key}: ${obj.obj}</li>`;
+                    });
+                    objectivesHtml += '</ul>';
+                } else {
+                    objectivesHtml = `<p>${lesson.learningObjectivesJson}</p>`;
+                }
+            } catch (error) {
+                objectivesHtml = `<p>${lesson.learningObjectivesJson}</p>`;
+            }
+            objectivesDiv.innerHTML = objectivesHtml;
+            messageDiv.innerHTML = '';
+        } catch (error) {
+            console.error('Error fetching lesson details:', error);
+            showError(messageDiv, `Lỗi khi tải thông tin bài học: ${error.message}`);
+        }
+    }
+
+    // Function to fetch questions for question bank
+    async function loadQuestions() {
+        const gradeId = document.getElementById('bankGradeSelect').value;
+        const lessonId = document.getElementById('bankLessonIdSelect').value;
+        const type = document.getElementById('bankTypeSelect').value;
+        const difficulty = document.getElementById('bankDifficultySelect').value;
+        const questionBankDisplay = document.getElementById('questionBankDisplay');
+        const messageBox = document.getElementById('messageBox');
+
+        if (!gradeId || !lessonId) {
+            questionBankDisplay.innerHTML = '<p class="text-muted">Vui lòng chọn lớp và bài học để tải câu hỏi.</p>';
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/questions?gradeId=${gradeId}&lessonId=${lessonId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch questions: ${response.statusText}`);
+            }
+            const questions = await response.json();
+            let filteredQuestions = questions;
+
+            if (type !== 'all') {
+                filteredQuestions = filteredQuestions.filter(q => q.questionType === type);
+            }
+            if (difficulty !== 'all') {
+                filteredQuestions = filteredQuestions.filter(q => q.difficulty === difficulty);
+            }
+
+            if (filteredQuestions.length === 0) {
+                questionBankDisplay.innerHTML = '<p class="text-muted">Không tìm thấy câu hỏi nào phù hợp.</p>';
+                return;
+            }
+
+            questionBankDisplay.innerHTML = '';
+            filteredQuestions.forEach((question, index) => {
+                allQuestionsData[question.id] = question;
+
+                let optionsHtml = '';
+                try {
+                    const options = JSON.parse(question.optionsJson);
+                    if (Array.isArray(options)) {
+                        optionsHtml = '<ul>';
+                        options.forEach(opt => {
+                            const key = Object.keys(opt)[0];
+                            optionsHtml += `<li>${key}: ${opt[key]}</li>`;
+                        });
+                        optionsHtml += '</ul>';
+                    } else {
+                        optionsHtml = `<p>${question.optionsJson}</p>`;
+                    }
+                } catch (error) {
+                    optionsHtml = `<p>${question.optionsJson}</p>`;
+                }
+
+                const isChecked = selectedQuestionsData.has(question.id.toString());
+
+                questionBankDisplay.innerHTML += `
+                    <div class="bank-question-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="question${question.id}" value="${question.id}" ${isChecked ? 'checked' : ''}>
+                            <label class="form-check-label" for="question${question.id}">
+                                <strong>Câu ${index + 1}: ${question.questionText}</strong>
+                            </label>
+                        </div>
+                        <p><strong>Loại:</strong> ${question.questionType}</p>
+                        <p><strong>Mức độ:</strong> ${question.difficulty}</p>
+                        <p><strong>Đáp án:</strong> ${question.answerKey}</p>
+                        <p><strong>Điểm:</strong> ${question.defaultPoint}</p>
+                        ${question.optionsJson ? `<p><strong>Lựa chọn:</strong> ${optionsHtml}</p>` : ''}
+                    </div>
+                `;
+            });
+
+            const checkboxes = document.querySelectorAll('#questionBankDisplay .form-check-input');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        selectedQuestionsData.add(e.target.value);
+                    } else {
+                        selectedQuestionsData.delete(e.target.value);
+                    }
+                    updateSelectedQuestionsPreview();
+                    updateGenerateButtonState();
+                });
+            });
+
+            MathJax.typesetPromise();
+            messageBox.innerHTML = '';
+        } catch (error) {
+            console.error('Error loading questions:', error);
+            questionBankDisplay.innerHTML = `<p class="text-danger">Lỗi khi tải câu hỏi: ${error.message}</p>`;
+        }
+    }
+
+    function updateSelectedQuestionsPreview() {
+        const previewDiv = document.getElementById('selectedQuestionsPreview');
+
+        if (selectedQuestionsData.size === 0) {
+            previewDiv.innerHTML = '<div class="preview-placeholder"><p class="text-muted">Chọn câu hỏi từ ngân hàng để xem trước</p></div>';
+            return;
+        }
+
+        let previewHtml = '<div class="d-flex flex-wrap gap-2">';
+        let questionIndex = 1;
+
+        selectedQuestionsData.forEach((questionId) => {
+            const question = allQuestionsData[questionId];
+            if (!question) return;
+
+            previewHtml += `
+                <div class="card p-3" style="min-width: 150px; cursor: pointer; position: relative;" onmouseenter="this.querySelector('.remove-btn').style.display='block'" onmouseleave="this.querySelector('.remove-btn').style.display='none'">
+                    <button class="remove-btn btn btn-sm btn-close" style="position: absolute; top: 5px; right: 5px; display: none;" onclick="removeSelectedQuestion('${questionId}')" title="Xóa câu hỏi"></button>
+                    <div class="card-body p-0" onclick="showQuestionDetail('${questionId}')">
+                        <h6 class="card-title mb-2">Câu ${questionIndex}</h6>
+                        <small class="text-muted d-block mb-1"><strong>Loại:</strong> ${question.questionType}</small>
+                        <small class="text-muted d-block mb-1"><strong>Mức độ:</strong> ${question.difficulty}</small>
+                        <small class="text-muted d-block"><strong>Điểm:</strong> ${question.defaultPoint}</small>
+                    </div>
+                </div>
+            `;
+            questionIndex++;
+        });
+        previewHtml += '</div>';
+        previewDiv.innerHTML = previewHtml;
+    }
+
+    function removeSelectedQuestion(questionId) {
+        selectedQuestionsData.delete(questionId);
+        const checkbox = document.getElementById(`question${questionId}`);
+        if (checkbox) {
+            checkbox.checked = false;
+        }
+        updateSelectedQuestionsPreview();
+        updateGenerateButtonState();
+    }
+
+    function showQuestionDetail(questionId) {
+        const question = allQuestionsData[questionId];
+        if (!question) return;
+
+        let optionsHtml = '';
+        try {
+            const options = JSON.parse(question.optionsJson);
+            if (Array.isArray(options)) {
+                optionsHtml = '<ul>';
+                options.forEach(opt => {
+                    const key = Object.keys(opt)[0];
+                    optionsHtml += `<li>${key}: ${opt[key]}</li>`;
+                });
+                optionsHtml += '</ul>';
+            } else {
+                optionsHtml = `<p>${question.optionsJson}</p>`;
+            }
+        } catch (error) {
+            optionsHtml = `<p>${question.optionsJson}</p>`;
+        }
+
+        const detailContent = document.getElementById('questionDetailContent');
+        detailContent.innerHTML = `
+            <div>
+                <h6 class="mb-3">${question.questionText}</h6>
+                <p><strong>Loại câu hỏi:</strong> ${question.questionType}</p>
+                <p><strong>Mức độ:</strong> ${question.difficulty}</p>
+                <p><strong>Điểm:</strong> ${question.defaultPoint}</p>
+                <p><strong>Đáp án:</strong> ${question.answerKey}</p>
+                ${optionsHtml ? `<div><strong>Lựa chọn:</strong> ${optionsHtml}</div>` : ''}
+            </div>
+        `;
+
+        const modal = new bootstrap.Modal(document.getElementById('questionDetailModal'));
+        modal.show();
+    }
+
+    function updateGenerateButtonState() {
+        const selectedMatrixRadio = document.querySelector('.bank-matrix-item .form-check-input:checked');
+        const generateBtn = document.getElementById('generateWithAIBtn');
+
+        generateBtn.disabled = selectedQuestionsData.size === 0 || !selectedMatrixRadio;
+    }
+
+    function updateSelectedMatrixPreview(matrixId, matrixName, description, totalQuestions, configs, subjectName, gradeValue) {
+        const previewDiv = document.getElementById('selectedMatrixPreview');
+
+        // Extract totalQuestions from the first config's matrix object if available
+        let displayTotalQuestions = totalQuestions;
+        if (Array.isArray(configs) && configs.length > 0 && configs[0].matrix) {
+            displayTotalQuestions = configs[0].matrix.totalQuestions;
+        }
+
+        // Map difficulty levels to Vietnamese names
+        const difficultyMap = {
+            'NhanBiet': 'Nhận biết',
+            'ThongHieu': 'Thông hiểu',
+            'VanDung': 'Vận dụng',
+            'VanDungCao': 'Vận dụng cao'
+        };
+
+        let configTableHtml = '<table class="table table-sm table-bordered mt-3"><thead><tr><th>Mức độ</th><th>Số câu</th></tr></thead><tbody>';
+
+        if (Array.isArray(configs)) {
+            configs.forEach(config => {
+                const difficultyName = difficultyMap[config.difficulty] || config.difficulty;
+                configTableHtml += `<tr><td>${difficultyName}</td><td>${config.require_count}</td></tr>`;
+            });
+        }
+
+        configTableHtml += '</tbody></table>';
+
+        previewDiv.innerHTML = `
+            <div class="card p-3">
+                <h6 class="card-title mb-3"><strong>${matrixName}</strong></h6>
+                <div class="mb-2">
+                    <small class="text-muted d-block"><strong>Môn:</strong> ${subjectName}</small>
+                    <small class="text-muted d-block"><strong>Lớp:</strong> ${gradeValue}</small>
+                    <small class="text-muted d-block"><strong>Tổng câu:</strong> ${displayTotalQuestions}</small>
+                </div>
+                ${description ? `<p class="mb-2"><small class="text-muted">${description}</small></p>` : ''}
+                <div class="mt-3">
+                    <strong class="d-block mb-2">Cấu hình ma trận:</strong>
+                    ${configTableHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    // Function to fetch matrices for matrix bank
+    async function loadMatrices() {
+        const subjectCode = document.getElementById('matrixBankSubjectSelect').value;
+        const grade = document.getElementById('matrixBankGradeSelect').value;
+        const matrixBankDisplay = document.getElementById('matrixBankDisplay');
+        const messageBox = document.getElementById('messageBox');
+
+        if (!subjectCode || !grade) {
+            matrixBankDisplay.innerHTML = '<p class="text-muted">Vui lòng chọn môn học và lớp để tải ma trận.</p>';
+            return;
+        }
+
+        try {
+            // Get subject ID from code
+            const subjectsResponse = await fetch('http://localhost:8080/api/subject', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const subjects = await subjectsResponse.json();
+            const subject = subjects.find(s => s.code === subjectCode);
+
+            if (!subject) {
+                matrixBankDisplay.innerHTML = '<p class="text-danger">Không tìm thấy môn học.</p>';
+                return;
+            }
+
+            const response = await fetch(`http://localhost:8080/api/matrix?subjectId=${subject.id}&grade=${grade}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch matrices: ${response.statusText}`);
+            }
+
+            const matrices = await response.json();
+            console.log("[v0] Matrices loaded:", matrices);
+
+            const filteredMatrices = matrices.filter(matrix =>
+                matrix.subjectId === subject.id && matrix.grade === parseInt(grade)
+            );
+
+            if (filteredMatrices.length === 0) {
+                matrixBankDisplay.innerHTML = '<p class="text-muted">Không tìm thấy ma trận nào phù hợp.</p>';
+                return;
+            }
+
+            matrixBankDisplay.innerHTML = '';
+            filteredMatrices.forEach((matrix, index) => {
+                console.log("[v0] Matrix object:", matrix);
+                matrixBankDisplay.innerHTML += `
+                    <div class="bank-matrix-item mb-3">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="selectedMatrix" id="matrix${matrix.id}" value="${matrix.id}" data-matrix-id="${matrix.id}" data-matrix-name="${matrix.matrixName}" data-description="${matrix.description}" data-total-questions="${matrix.totalQuestions}" data-subject-name="${subject.name}" data-grade="${grade}">
+                            <label class="form-check-label" for="matrix${matrix.id}">
+                                <strong>${matrix.matrixName}</strong>
+                            </label>
+                        </div>
+                        <div class="ms-4">
+                            <p class="mb-1"><small><strong>Môn:</strong> ${subject.name}</small></p>
+                            <p class="mb-1"><small><strong>Lớp:</strong> ${grade}</small></p>
+                            <p class="mb-2"><small class="text-muted">${matrix.description}</small></p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.querySelectorAll('.bank-matrix-item .form-check-input').forEach(radio => {
+                radio.addEventListener('change', async (e) => {
+                    if (e.target.checked) {
+                        const matrixId = e.target.dataset.matrixId;
+                        const matrixName = e.target.dataset.matrixName;
+                        const description = e.target.dataset.description;
+                        const totalQuestions = e.target.dataset.totalQuestions;
+                        const subjectName = e.target.dataset.subjectName;
+                        const gradeValue = e.target.dataset.grade;
+
+                        console.log("[v0] Matrix selected with data:", {
+                            matrixId,
+                            matrixName,
+                            description,
+                            totalQuestions,
+                            subjectName,
+                            gradeValue
+                        });
+
+                        // Fetch matrix configs
+                        try {
+                            const response = await fetch(`http://localhost:8080/api/matrix/${matrixId}`, {
+                                method: 'GET',
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+                            const configs = await response.json();
+                            console.log("[v0] Matrix configs received:", configs);
+                            updateSelectedMatrixPreview(matrixId, matrixName, description, totalQuestions, configs, subjectName, gradeValue);
+                        } catch (error) {
+                            console.error('Error fetching matrix configs:', error);
+                        }
+                    }
+                });
+            });
+
+            // Add event listeners for view matrix buttons
+            document.querySelectorAll('.view-matrix-btn').forEach(button => {
+                button.addEventListener('click', () => viewMatrixDetails(button.dataset.matrixId));
+            });
+
+            messageBox.innerHTML = '';
+        } catch (error) {
+            console.error('Error loading matrices:', error);
+            matrixBankDisplay.innerHTML = `<p class="text-danger">Lỗi khi tải ma trận: ${error.message}</p>`;
+        }
+    }
+
+    async function createMatrix() {
+        console.log('[v0] createMatrix function called!');
+        console.log('[v0] Button element:', document.getElementById('saveMatrixBtn'));
+
+        const matrixName = document.getElementById('matrixNameInput').value.trim();
+        const description = document.getElementById('matrixDescriptionInput').value.trim();
+        const subjectIdValue = document.getElementById('matrixSubjectIdInput').value;
+        const gradeValue = document.getElementById('matrixGradeInput').value;
+        const subjectId = subjectIdValue ? parseInt(subjectIdValue) : NaN;
+        const grade = gradeValue ? parseInt(gradeValue) : NaN;
+        const messageDiv = document.getElementById('createMatrixMessage');
+        const saveButton = document.getElementById('saveMatrixBtn');
+        const spinner = document.getElementById('saveMatrixSpinner');
+        const saveText = document.getElementById('saveMatrixText');
+
+        console.log("[v0] Form values:", { matrixName, description, subjectId, grade, subjectIdValue, gradeValue });
+
+        if (!matrixName || !description || isNaN(subjectId) || isNaN(grade)) {
+            console.log("[v0] Validation failed - missing required fields");
+            console.log("[v0] Details - matrixName:", !!matrixName, "description:", !!description, "subjectId valid:", !isNaN(subjectId), "grade valid:", !isNaN(grade));
+            showError(messageDiv, 'Vui lòng nhập đầy đủ thông tin ma trận. Kiểm tra: Tên ma trận, Mô tả, Môn học, và Lớp học.');
+            return;
+        }
+
+        // Build difficulty map
+        const difficultyQuestionCountMap = {};
+        document.querySelectorAll('.difficulty-input').forEach(input => {
+            const difficulty = input.dataset.difficulty;
+            const count = parseInt(input.value) || 0;
+            if (count > 0) {
+                difficultyQuestionCountMap[difficulty] = count;
+            }
+        });
+
+        console.log("[v0] Difficulty map:", difficultyQuestionCountMap);
+
+        if (Object.keys(difficultyQuestionCountMap).length === 0) {
+            console.log("[v0] No difficulty levels with count > 0");
+            showError(messageDiv, 'Vui lòng nhập ít nhất một mức độ với số câu hỏi > 0.');
+            return;
+        }
+
+        try {
+            const totalQuestions = Object.values(difficultyQuestionCountMap).reduce((a, b) => a + b, 0);
+
+            saveButton.disabled = true;
+            spinner.style.display = 'inline-block';
+            saveText.textContent = 'Đang lưu...';
+
+            const requestBody = {
+                matrixName,
+                description,
+                totalQuestions,
+                subjectId,
+                grade,
+                difficultyQuestionCountMap
+            };
+
+            console.log("[v0] Sending request to backend:", requestBody);
+
+            const response = await fetch('http://localhost:8080/api/matrix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+
+            console.log("[v0] Response status:", response.status, response.statusText);
+
+            if (!response.ok) {
+                throw new Error(`Failed to create matrix: ${response.statusText}`);
+            }
+
+            const responseData = await response.json();
+            console.log("[v0] Response data:", responseData);
+
+            messageDiv.innerHTML = `
+                <div class="alert alert-success" role="alert">
+                    Tạo ma trận thành công!
+                </div>`;
+
+            // Reset form
+            document.getElementById('matrixNameInput').value = '';
+            document.getElementById('matrixDescriptionInput').value = '';
+            document.getElementById('matrixSubjectIdInput').value = '';
+            document.getElementById('matrixGradeInput').value = '';
+            document.querySelectorAll('.difficulty-input').forEach(input => input.value = '0');
+            document.getElementById('totalQuestionsDisplay').textContent = '0';
+
+            await loadMatrices();
+
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('createMatrixModal')).hide();
+                messageDiv.innerHTML = '';
+            }, 2000);
+        } catch (error) {
+            console.error("[v0] Error creating matrix:", error);
+            showError(messageDiv, `Lỗi: ${error.message}`);
+        } finally {
+            saveButton.disabled = false;
+            spinner.style.display = 'none';
+            saveText.textContent = 'Lưu ma trận';
+        }
+    }
+
+    function updateTotalQuestions() {
+        let total = 0;
+        document.querySelectorAll('.difficulty-input').forEach(input => {
+            total += parseInt(input.value) || 0;
+        });
+        document.getElementById('totalQuestionsDisplay').textContent = total;
+    }
+
+    // Function to view matrix details
+    async function viewMatrixDetails(matrixId) {
+        const messageDiv = document.getElementById('viewMatrixMessage');
+        const nameInput = document.getElementById('viewMatrixName');
+        const descriptionInput = document.getElementById('viewMatrixDescription');
+        const totalQuestionsInput = document.getElementById('viewMatrixTotalQuestions');
+        const configDiv = document.getElementById('viewMatrixConfig');
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/matrix/${matrixId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch matrix details: ${response.statusText}`);
+            }
+            const matrixConfigs = await response.json();
+
+            if (matrixConfigs.length === 0) {
+                showError(messageDiv, 'Không tìm thấy thông tin ma trận.');
+                return;
+            }
+
+            const matrix = matrixConfigs[0].matrix;
+            nameInput.value = matrix.matrixName;
+            descriptionInput.value = matrix.description;
+            totalQuestionsInput.value = matrix.totalQuestions;
+
+            let configHtml = '<table class="table table-bordered">';
+            configHtml += '<thead><tr><th>Mức độ</th><th>Số câu hỏi</th></tr></thead>';
+            configHtml += '<tbody>';
+            matrixConfigs.forEach(config => {
+                configHtml += `<tr><td>${config.difficulty}</td><td>${config.require_count}</td></tr>`;
+            });
+            configHtml += '</tbody></table>';
+            configDiv.innerHTML = configHtml;
+
+            messageDiv.innerHTML = '';
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('viewMatrixModal')).show();
+        } catch (error) {
+            console.error('Error fetching matrix details:', error);
+            showError(messageDiv, `Lỗi khi tải chi tiết ma trận: ${error.message}`);
+        }
+    }
+
+    async function addQuestion() {
+        console.log('[v0] addQuestion function called!');
+
+        const lessonId = document.getElementById('questionLessonIdSelect').value;
+        const questionText = document.getElementById('questionTextInput').value.trim();
+        const questionType = document.getElementById('questionTypeSelect').value;
+        const difficulty = document.getElementById('questionDifficultySelect').value;
+        const defaultPoint = parseFloat(document.getElementById('defaultPointInput').value) || 1.0;
+        const messageDiv = document.getElementById('addQuestionMessage');
+        const saveButton = document.getElementById('saveQuestionBtn');
+        const spinner = document.getElementById('saveQuestionSpinner');
+        const saveText = document.getElementById('saveQuestionText');
+
+        console.log("[v0] Form values:", { lessonId, questionText, questionType, difficulty, defaultPoint });
+
+        // Validation
+        if (!lessonId || !questionText) {
+            console.log("[v0] Validation failed - missing required fields");
+            showError(messageDiv, 'Vui lòng nhập đầy đủ thông tin: Bài học và Nội dung câu hỏi.');
+            return;
+        }
+
+        // Validate trắc nghiệm options
+        if (questionType === 'TracNghiem') {
+            const optionA = document.getElementById('optionA').value.trim();
+            const optionB = document.getElementById('optionB').value.trim();
+            const optionC = document.getElementById('optionC').value.trim();
+            const optionD = document.getElementById('optionD').value.trim();
+            const answerKey = document.querySelector('input[name="answerKey"]:checked')?.value;
+
+            if (!optionA || !optionB || !optionC || !optionD || !answerKey) {
+                console.log("[v0] Validation failed - missing trắc nghiệm options");
+                showError(messageDiv, 'Vui lòng nhập đầy đủ 4 đáp án và chọn đáp án đúng.');
+                return;
+            }
+
+            try {
+                saveButton.disabled = true;
+                spinner.style.display = 'inline-block';
+                saveText.textContent = 'Đang lưu...';
+
+                const optionsJson = JSON.stringify([
+                    { "a": optionA },
+                    { "b": optionB },
+                    { "c": optionC },
+                    { "d": optionD }
+                ]);
+
+                const requestBody = {
+                    lessonId: parseInt(lessonId),
+                    questionText,
+                    questionType,
+                    difficulty,
+                    defaultPoint,
+                    optionsJson,
+                    answerKey
+                };
+
+                console.log("[v0] Sending request to backend:", requestBody);
+
+                const response = await fetch('http://localhost:8080/api/questions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                console.log("[v0] Response status:", response.status, response.statusText);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to create question: ${response.statusText}`);
+                }
+
+                const responseData = await response.json();
+                console.log("[v0] Response data:", responseData);
+
+                messageDiv.innerHTML = `
+                    <div class="alert alert-success" role="alert">
+                        Tạo câu hỏi thành công!
+                    </div>`;
+
+                // Reset form
+                document.getElementById('questionLessonIdSelect').value = '';
+                document.getElementById('questionTextInput').value = '';
+                document.getElementById('optionA').value = '';
+                document.getElementById('optionB').value = '';
+                document.getElementById('optionC').value = '';
+                document.getElementById('optionD').value = '';
+                document.querySelectorAll('input[name="answerKey"]').forEach(radio => radio.checked = false);
+                document.getElementById('questionTypeSelect').value = 'TracNghiem';
+                document.getElementById('questionDifficultySelect').value = 'NhanBiet';
+                document.getElementById('defaultPointInput').value = '1.0';
+
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('addQuestionModal')).hide();
+                    messageDiv.innerHTML = '';
+                }, 2000);
+            } catch (error) {
+                console.error("[v0] Error creating question:", error);
+                showError(messageDiv, `Lỗi: ${error.message}`);
+            } finally {
+                saveButton.disabled = false;
+                spinner.style.display = 'none';
+                saveText.textContent = 'Lưu';
+            }
+        } else if (questionType === 'TuLuan') {
+            // Handle tự luận questions
+            try {
+                saveButton.disabled = true;
+                spinner.style.display = 'inline-block';
+                saveText.textContent = 'Đang lưu...';
+
+                const requestBody = {
+                    lessonId: parseInt(lessonId),
+                    questionText,
+                    questionType,
+                    difficulty,
+                    defaultPoint,
+                    optionsJson: null,
+                    answerKey: ""
+                };
+
+                console.log("[v0] Sending request to backend:", requestBody);
+
+                const response = await fetch('http://localhost:8080/api/questions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                console.log("[v0] Response status:", response.status, response.statusText);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to create question: ${response.statusText}`);
+                }
+
+                const responseData = await response.json();
+                console.log("[v0] Response data:", responseData);
+
+                messageDiv.innerHTML = `
+                    <div class="alert alert-success" role="alert">
+                        Tạo câu hỏi thành công!
+                    </div>`;
+
+                // Reset form
+                document.getElementById('questionLessonIdSelect').value = '';
+                document.getElementById('questionTextInput').value = '';
+                document.getElementById('questionTypeSelect').value = 'TracNghiem';
+                document.getElementById('questionDifficultySelect').value = 'NhanBiet';
+                document.getElementById('defaultPointInput').value = '1.0';
+
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('addQuestionModal')).hide();
+                    messageDiv.innerHTML = '';
+                }, 2000);
+            } catch (error) {
+                console.error("[v0] Error creating question:", error);
+                showError(messageDiv, `Lỗi: ${error.message}`);
+            } finally {
+                saveButton.disabled = false;
+                spinner.style.display = 'none';
+                saveText.textContent = 'Lưu';
+            }
+        }
+    }
+
+    // Load subjects and set up event listeners when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSubjects();
+
+        const subjectSelect = document.getElementById('subjectSelect');
+        const gradeSelect = document.getElementById('gradeSelect');
+        const lessonSelect = document.getElementById('lessonSelect');
+        const viewLessonBtn = document.getElementById('viewLessonBtn');
+        const bankSubjectSelect = document.getElementById('bankSubjectSelect');
+        const bankGradeSelect = document.getElementById('bankGradeSelect');
+        const bankLessonIdSelect = document.getElementById('bankLessonIdSelect');
+        const bankTypeSelect = document.getElementById('bankTypeSelect');
+        const bankDifficultySelect = document.getElementById('bankDifficultySelect');
+        const matrixBankSubjectSelect = document.getElementById('matrixBankSubjectSelect');
+        const matrixBankGradeSelect = document.getElementById('matrixBankGradeSelect');
+        const questionTypeSelect = document.getElementById('questionTypeSelect');
+        const matrixSubjectIdInput = document.getElementById('matrixSubjectIdInput');
+
+        subjectSelect.addEventListener('change', () => {
+            console.log('Subject changed:', subjectSelect.value);
+            loadLessonsForSelect(subjectSelect.value, gradeSelect.value, lessonSelect, document.getElementById('messageBox'));
+        });
+        gradeSelect.addEventListener('change', () => {
+            console.log('Grade changed:', gradeSelect.value);
+            loadLessonsForSelect(subjectSelect.value, gradeSelect.value, lessonSelect, document.getElementById('messageBox'));
+        });
+        lessonSelect.addEventListener('change', () => {
+            console.log('Lesson changed:', lessonSelect.value);
+            viewLessonBtn.disabled = lessonSelect.value === '-- Chọn bài học --';
+        });
+        bankSubjectSelect.addEventListener('change', () => {
+            console.log('Bank Subject changed:', bankSubjectSelect.value);
+            bankGradeSelect.disabled = !bankSubjectSelect.value;
+            loadBankLessons();
+        });
+        bankGradeSelect.addEventListener('change', () => {
+            console.log('Bank Grade changed:', bankGradeSelect.value);
+            loadBankLessons();
+        });
+        bankLessonIdSelect.addEventListener('change', () => {
+            console.log('Bank Lesson ID changed:', bankLessonIdSelect.value);
+            loadQuestions();
+        });
+        bankTypeSelect.addEventListener('change', loadQuestions);
+        bankDifficultySelect.addEventListener('change', loadQuestions);
+        matrixBankSubjectSelect.addEventListener('change', () => {
+            console.log('Matrix Bank Subject changed:', matrixBankSubjectSelect.value);
+            matrixBankGradeSelect.disabled = !matrixBankSubjectSelect.value;
+            loadMatrices();
+        });
+        matrixBankGradeSelect.addEventListener('change', () => {
+            console.log('Matrix Bank Grade changed:', matrixBankGradeSelect.value);
+            loadMatrices();
+        });
+        questionTypeSelect.addEventListener('change', toggleTracNghiemOptions);
+        document.getElementById('saveSubjectBtn').addEventListener('click', addSubject);
+        document.getElementById('saveLessonBtn').addEventListener('click', addLesson);
+        document.getElementById('saveQuestionBtn').addEventListener('click', addQuestion);
+        viewLessonBtn.addEventListener('click', viewLessonDetails);
+
+        // Populate subject select in create matrix modal
+        matrixSubjectIdInput.addEventListener('click', async () => {
+            if (matrixSubjectIdInput.options.length === 1) { // Only populate if it's just the default option
+                try {
+                    const response = await fetch('http://localhost:8080/api/subject', {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const subjects = await response.json();
+                    subjects.forEach(subject => {
+                        const option = document.createElement('option');
+                        option.value = subject.id;
+                        option.textContent = subject.name;
+                        matrixSubjectIdInput.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error loading subjects for matrix:', error);
+                }
+            }
+        });
+
+        document.getElementById('saveMatrixBtn').addEventListener('click', createMatrix);
+        document.querySelectorAll('.difficulty-input').forEach(input => {
+            input.addEventListener('change', updateTotalQuestions);
+        });
+
+        toggleTracNghiemOptions();
+
+        document.getElementById('generateWithAIBtn').addEventListener('click', async () => {
+            const selectedQuestions = Array.from(selectedQuestionsData); // Use the global set
+            const selectedMatrixRadio = document.querySelector('.bank-matrix-item .form-check-input:checked');
+
+            if (selectedQuestions.length === 0 || !selectedMatrixRadio) {
+                alert('Vui lòng chọn ít nhất một câu hỏi và một ma trận.');
+                return;
+            }
+
+            const matrixId = selectedMatrixRadio.value;
+            const generateBtn = document.getElementById('generateWithAIBtn');
+            const generateText = document.getElementById('generateWithAIText');
+            const generateSpinner = document.getElementById('generateWithAISpinner');
+
+            generateBtn.disabled = true;
+            generateText.textContent = 'Đang xử lý...';
+            generateSpinner.style.display = 'inline-block';
+
+            try {
+                // Send data to backend
+                const response = await fetch('http://localhost:8080/api/exam/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        questionIds: selectedQuestions.map(id => parseInt(id)),
+                        matrixId: parseInt(matrixId)
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to generate exam: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                console.log('Exam generated:', result);
+                alert('Đề thi đã được tạo thành công!');
+
+                // You can display the result or redirect to a results page here
+            } catch (error) {
+                console.error('Error generating exam:', error);
+                alert(`Lỗi khi tạo đề thi: ${error.message}`);
+            } finally {
+                generateBtn.disabled = false;
+                generateText.textContent = 'Gửi để tạo đề thi';
+                generateSpinner.style.display = 'none';
+            }
+        });
+    });
+
+    function toggleTracNghiemOptions() {
+        const questionTypeSelect = document.getElementById('questionTypeSelect');
+        const tracNghiemOptions = document.getElementById('tracNghiemOptions');
+
+        if (questionTypeSelect.value === 'TracNghiem') {
+            tracNghiemOptions.style.display = 'block';
+        } else {
+            tracNghiemOptions.style.display = 'none';
+        }
+    }
+</script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
