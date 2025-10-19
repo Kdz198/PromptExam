@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MatrixConfigRepository  extends JpaRepository<MatrixConfig, Integer> {
     List<MatrixConfig> findByMatrixId(int id);
+
+    void deleteByMatrixId(int id);
 }

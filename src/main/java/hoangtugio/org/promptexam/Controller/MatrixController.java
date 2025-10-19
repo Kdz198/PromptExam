@@ -22,13 +22,18 @@ public class MatrixController {
 
     @PostMapping
     public Matrix createMatrix(@RequestBody MatrixDTO matrixDTO) {
-        System.out.println(matrixDTO);
         return matrixService.save( matrixDTO);
     }
 
     @GetMapping
     public List<Matrix> getAllMatrix() {
         return matrixService.getAllMatrix();
+    }
+
+    @PutMapping
+    public Matrix updateMatrix(@RequestBody MatrixDTO matrixDTO) {
+        System.out.println( "Received matrixDTO: " + matrixDTO);
+        return matrixService.updateMatrix(matrixDTO);
     }
 
     @GetMapping("/{id}")

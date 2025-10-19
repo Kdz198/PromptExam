@@ -9,6 +9,7 @@ import java.util.Map;
 @Data
 public class MatrixDTO {
 
+    int matrixId; // ID Ma trận cho truong hop Update
     private String matrixName; // Tên Ma trận (VD: Ma trận chuẩn 45 phút)
     int totalQuestions; // Tổng số câu hỏi
     int subjectId; // Môn học áp dụng ma trận

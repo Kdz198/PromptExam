@@ -36,7 +36,7 @@ public class MatrixService {
         matrix.setGrade( matrixDTO.getGrade());
         Matrix savedMatrix= matrixRepository.save(matrix);
 
-// 2. Lấy Map cấu hình từ DTO
+        // 2. Lấy Map cấu hình từ DTO
         Map<String, Integer> configMap = matrixDTO.getDifficultyQuestionCountMap();
 
         // 3. Duyệt qua Map configs (nếu có)
@@ -63,6 +63,40 @@ public class MatrixService {
 
         return matrixRepository.save(matrix);
     }
+
+    @Transactional
+    public Matrix updateMatrix (MatrixDTO matrixDTO) {
+        Matrix matrix = matrixRepository.findById(matrixDTO.getMatrixId()).orElse(null);
+        if (matrix != null) {
+            matrix.setMatrixName(matrixDTO.getMatrixName());
+            matrix.setDescription(matrixDTO.getDescription());
+            matrix.setTotalQuestions(matrixDTO.getTotalQuestions());
+            matrix.setSubjectId(matrixDTO.getSubjectId());
+            matrix.setGrade(matrixDTO.getGrade());
+        }
+
+        Map< String, Integer> configMap = matrixDTO.getDifficultyQuestionCountMap();
+        if (configMap != null && !configMap.isEmpty()) {
+            // Xóa các cấu hình cũ liên quan đến ma trận này
+            matrixConfigRepository.deleteByMatrixId(matrix.getId());
+
+            // Thêm các cấu hình mới từ DTO
+            for (Map.Entry<String, Integer> configEntry : configMap.entrySet()) {
+                String difficulty = configEntry.getKey();
+                int requireCount = configEntry.getValue();
+
+                MatrixConfig matrixConfig = new MatrixConfig();
+                matrixConfig.setDifficulty(difficulty);
+                matrixConfig.setRequire_count(requireCount);
+                matrixConfig.setMatrix(matrix);
+
+                matrixConfigRepository.save(matrixConfig);
+            }
+        }
+        return matrixRepository.save(matrix);
+
+    }
+
 
     public List<Matrix> getAllMatrix() {
 
