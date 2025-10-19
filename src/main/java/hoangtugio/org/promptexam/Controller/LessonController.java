@@ -24,4 +24,9 @@ public class LessonController {
     public Lesson createLesson(@RequestBody Lesson lesson) {
         return lessonService.save(lesson);
     }
+
+    @PutMapping
+    public Lesson updateLesson(@RequestBody Lesson lesson) {
+        return lessonService.save(lesson);
+    }
 }
