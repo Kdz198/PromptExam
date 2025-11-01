@@ -1,13 +1,14 @@
 package hoangtugio.org.promptexam.Model;
 
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Nationalized;
 
-@Entity
+@Document(collection = "subject")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,11 +16,10 @@ public class Subject {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String code;
-    @Nationalized
+    @Field
     private String name;
 
     public Subject(String code, String name) {
