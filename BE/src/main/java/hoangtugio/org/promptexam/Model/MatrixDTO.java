@@ -1,7 +1,6 @@
 package hoangtugio.org.promptexam.Model;
 
 
-import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.util.Map;

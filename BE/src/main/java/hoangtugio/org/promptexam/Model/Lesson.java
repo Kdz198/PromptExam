@@ -1,34 +1,34 @@
 package hoangtugio.org.promptexam.Model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
+@Document(collection = "lesson")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Lesson {
     @Id
-            @GeneratedValue (strategy = GenerationType.IDENTITY)
-    int id;
-    @ManyToOne
-    @JoinColumn(name = "subject_id")
+    private int id;
+    @DBRef
     Subject subject;
     int grade;
     String name;
-    @Column( columnDefinition = "TEXT")
     private String learningObjectivesJson;
-    @CreationTimestamp
+    @CreatedDate
     LocalDateTime createdAt;
-    @UpdateTimestamp
+    @LastModifiedDate
     LocalDateTime updatedAt;
 
 

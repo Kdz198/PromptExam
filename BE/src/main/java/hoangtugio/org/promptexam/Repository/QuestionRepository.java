@@ -1,10 +1,9 @@
 package hoangtugio.org.promptexam.Repository;
 
 import hoangtugio.org.promptexam.Model.Question;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface QuestionRepository extends JpaRepository<Question, Integer> {
+public interface QuestionRepository extends FlushableMongoRepository<Question, Integer> {
     List<Question> findByLessonId(int lessonId);
 }

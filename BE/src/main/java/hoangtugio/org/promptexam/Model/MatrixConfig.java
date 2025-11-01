@@ -1,25 +1,25 @@
 package hoangtugio.org.promptexam.Model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Document(collection = "matrix_config")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class MatrixConfig {
 
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
     int id;
-    @ManyToOne
-    @JoinColumn(name = "matrix_id")
+    @DBRef
     Matrix matrix;
     String difficulty;
     int require_count;
-    
+
 
 
 }
